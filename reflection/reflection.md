@@ -204,7 +204,7 @@ public static void case1() {
 
 4个反射核心类: 
 
-Class类, Constructor构造方法类, Field成员变量类, Method方法类
+Class类, Constructor构造方法类, Method方法类, Field成员变量类
 
 ### Class类
 
@@ -237,7 +237,7 @@ public /*abstract*/ class Employee {
     }
 
     private Integer eno;
-    public String ename;
+    private String ename;
     private Float salary;
     private String dname;
 
@@ -323,6 +323,275 @@ Employee{eno=null, ename='null', salary=null, dname='fff'}
 | ---------------------------- | -------------------------------- |
 | classObj.getConstructor()    | 获取指定public修饰的构造方法对象 |
 | constructorObj.newlnstance() | 通过对应的构造方法创建对象       |
+
+可以看到这里根据传参的不用构造对应的构造方法
+
+#### Sample
+
+```java
+public class ConstructorSample {
+    public static void main(String[] args) {
+        try {
+            Class<?> employeeClass = Class.forName("com.example.reflect.entity.Employee");
+
+            Constructor<?> constructor = employeeClass.getConstructor(Integer.class, String.class, Float.class, String.class);
+
+            Employee employee =
+                    (Employee)constructor.newInstance(100, "lilei", 3000f, "dev");
+            /*Constructor constructor = employeeClass.getConstructor(new Class[]{
+                    Integer.class,String.class,Float.class,String.class
+            });
+            Employee employee = (Employee) constructor.newInstance(new Object[]{
+                    100,"李磊",3000f,"研发部"
+            });*/
+           
+            System.out.println(employee);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            // 没有找到与之对应格式的方法. 参数类型或者数量不一致
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // 当被调用的方法的内部抛出了异常而没有被捕获时
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+```
+Employee类已被加载到jvm, 并已初始化
+Employee带参构造方法已被执行
+Employee{eno=100, ename='lilei', salary=3000.0, dname='dev'}
+```
+
+### Method方法类
+
+* Method对象指代某个类中的方法的描述
+
+* Method对象使用classObj.getMethod()方法获取
+
+* `通过Method对象调用指定对象的对应方法
+
+#### 核心方法
+
+| 方法                 | 用途                             |
+| -------------------- | -------------------------------- |
+| classObj.getMethod() | 获取指定**public**修饰的方法对象 |
+| methodObj.invoke()   | 调用指定对象的对应方法           |
+
+#### Sample
+
+```java
+package com.example.reflect;
+
+
+import com.example.reflect.entity.Employee;
+
+import javax.lang.model.element.VariableElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
+ * 利用Method方法类调用
+ */
+public class MethodSample {
+    public static void main(String[] args) {
+        try {
+            Class<?> employeeClass = Class.forName("com.example.reflect.entity.Employee");
+            Constructor<?> constructor = employeeClass.getConstructor(Integer.class, String.class, Float.class, String.class);
+            Employee employee = (Employee) constructor.newInstance(100, "lilei", 3000f, "dev");
+            
+            Method updateSalaryMethod = employeeClass.getMethod("updateSalary", Float.class);
+            Employee employee1 = (Employee) updateSalaryMethod.invoke(employee, 1000f);
+            System.out.println(employee1);
+
+
+            Method updateSalary = Employee.class.getMethod("updateSalary", Float.class);
+            Employee invoke = (Employee) updateSalary.invoke(employee, 50000f);
+            System.out.println(invoke);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+
+```
+Employee类已被加载到jvm, 并已初始化
+Employee带参构造方法已被执行
+lilei调薪至4000.0元
+Employee{eno=100, ename='lilei', salary=4000.0, dname='dev'}
+lilei调薪至54000.0元
+Employee{eno=100, ename='lilei', salary=54000.0, dname='dev'}
+```
+
+### Field成员变量类
+
+* Field对应某个具体类中的成员变量的声明
+
+* Field对象使用classObj.getField()方法获取
+
+* 在运行时, 通过Field对象可为某对象成员变量赋值/取值
+
+#### 核心方法
+
+| 方法                | 用途                                 |
+| ------------------- | ------------------------------------ |
+| classObj.getField() | 获取指定**public**修饰的成员变量对象 |
+| fieldObj.set()      | 为某对象指定成员变量赋值             |
+| fieldObj.get()      | 获取某对象指定成员变量数值           |
+
+#### Sample
+
+```java
+/**
+ * 利用Field对成员变量赋值/取值
+ */
+public class FieldSample {
+    public static void main(String[] args) {
+        try {
+            Class<?> employeeClass = Class.forName("com.example.reflect.entity.Employee");
+            Constructor<?> constructor =
+                    employeeClass.getConstructor(Integer.class, String.class, Float.class, String.class);
+            Employee employee = (Employee) constructor.newInstance(
+                    100, "李磊", 3000f, "研发部");
+
+            Field enameField = employeeClass.getField("ename");
+            System.out.println((String) enameField.get(employee));
+
+            enameField.set(employee, "李雷");
+            String ename = (String) enameField.get(employee);
+
+            System.out.println("ename:" + ename);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            // 没有找到对应成员变量时抛出的异常
+            // 只能找到public的成员变量
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+classObj.getField():获取指定**public**修饰的成员变量对象, 如果是private的就会报错
+
+```
+java.lang.NoSuchFieldException: ename
+```
+
+所以把Employee的ename属性修改为public
+
+```java
+private Integer eno;
+public String ename;
+private Float salary;
+private String dname;
+```
+
+就可以修改
+
+```
+Employee类已被加载到jvm, 并已初始化
+Employee带参构造方法已被执行
+李磊
+ename:李雷
+```
+
+以上都需要访问public的方法, 那么如果要访问私有的, 如何?
+
+## getDeclared系列方法
+
+* getDeclaredConstructor(s)|Method(s)|Field(s)获取对应对象
+* getConstructor(s)|Method(s)|Field(s)只能获取public对象
+* 访问非public作用域内构造方法, 方法, 成员变量，会抛出异常
+
+---
+
+遇到public直接获取, 但是遇到private的, 就使用getter和setter
+
+```java
+/**
+ * 获取对象所有成员变量值
+ */
+public class getDeclaredSample {
+    public static void main(String[] args) {
+        try {
+            Class<?> employeeClass = Class.forName("com.example.reflect.entity.Employee");
+            Constructor<?> constructor =
+                    employeeClass.getConstructor(Integer.class, String.class, Float.class, String.class);
+
+            Employee employee = (Employee) constructor.newInstance(new Object[]{
+                    100, "李磊", 3000f, "研发部"
+            });
+
+            // 获取当前类所有成员变量
+            Field[] fields = employeeClass.getDeclaredFields();
+            for (Field field : fields) {
+               // System.out.println(field.getName());
+                if (field.getModifiers() == 1) {
+                    // pubilc修饰
+                    Object val = field.get(employee);
+                    System.out.println(field.getName() + ":" + val);
+                } else if (field.getModifiers() == 2) {
+                    // private修饰
+                    String methodName = "get" + field.getName().substring(0, 1).toUpperCase()
+                            + field.getName().substring(1);
+                    Method getMethod = employeeClass.getMethod(methodName);
+                    // 不同的成员变量类型不一样, 不要强制转换
+                    Object ret = getMethod.invoke(employee);
+                    System.out.println(field.getName() + ":" + ret);
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+```
+Employee类已被加载到jvm, 并已初始化
+Employee带参构造方法已被执行
+eno:100
+ename:李磊
+salary:3000.0
+dname:研发部
+```
+
+
 
 
 
