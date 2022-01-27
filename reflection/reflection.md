@@ -591,6 +591,82 @@ salary:3000.0
 dname:研发部
 ```
 
+## 反射在项目中的使用
+
+**在运行时**, 对类的成员变量和方法访问调用
+
+国际化案例:
+
+如果增加其他的语言, 不需要修改代码, 只需要增加对应的接口实现即可
+
+```java
+package com.example.i18n;
+
+public interface I18N {
+    public String say();
+}
+```
+
+```java
+package com.example.i18n;
+
+public class En implements I18N {
+    @Override
+    public String say() {
+        return "Cease to the struggle and cease to the life";
+    }
+}
+```
+
+```java
+package com.example.i18n;
+
+public class Zh implements I18N {
+    @Override
+    public String say() {
+        return "生命不息奋斗不止";
+    }
+}
+```
+
+```java
+package com.example.i18n;
+
+import java.io.FileInputStream;
+
+import java.net.URLDecoder;
+import java.util.Properties;
+
+public class Application {
+    public static void main(String[] args) {
+        Application.say();
+    }
+
+    public static void say() {
+        Properties properties = new Properties();
+        String configPath = Application.class.getResource("/config.properties").getPath();
+        try {
+            configPath = URLDecoder.decode(configPath, "UTF-8");
+            properties.load(new FileInputStream(configPath));
+
+            // 国际化实现类
+            String language = properties.getProperty("language");
+
+            I18N i18n = (I18N) Class.forName(language).newInstance();
+            System.out.println(i18n.say());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+```properties
+language=com.example.i18n.En
+```
+
+
+
 
 
 
