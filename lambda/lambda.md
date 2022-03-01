@@ -39,6 +39,101 @@ public class Test {
 
 实现语句: 单行直接写; 多行用{}包括
 
+---
+
+学习代码, 以MathOperation为例子:
+
+定义接口:
+
+````java
+package com.example.math;
+
+/**
+ * 四则运算接口
+ */
+public interface MathOperation {
+    public Float operate(Integer v1, Integer v2);
+}
+
+````
+
+思考一个问题: 如果实现接口采用加法运算,  
+
+-> 创建一个新的类实现接口, 然后在operate方法中进行加法返回.
+
+```java
+class Addition implements MathOperation {
+    @Override
+    public Float operate(Integer v1, Integer v2) {
+        System.out.println("addition operation");
+        return v1 + v2 + 0f;
+    }
+}
+
+Addition addition = new Addition();
+addition.opearte(5, 3);
+```
+
+-> 如果使用lambda表达式, 那么创建新类的行为就可以省略, 直接使用lambda表达式 -> 注意lambda有多种使用方式
+
+新建类:
+
+```java
+package com.example.math;
+
+import sun.nio.cs.ext.MacHebrew;
+
+public class LambdaSample {
+    public static void main(String[] args) {
+        // ------------------------ 1. 标准使用方式 ------------------------
+        // 约束条件：Lambda表达式只能实现有且只有一个抽象方法的接口，Java称之为"函数式接口"
+        MathOperation addition = (Integer v1, Integer v2) -> {
+            System.out.println("addition operation");
+            return v1 + v2 + 0f;
+        };
+        System.out.println(addition.operate(5, 3));
+
+        // ------------------------ 2. Lambda允许忽略参数类型 ------------------------
+        MathOperation substraction = (v1, v2) -> {
+            System.out.println("substraction operation");
+            return v1 - v2 - 0f;
+        };
+        System.out.println(substraction.operate(5, 3));
+
+        // ------------------------ 3. 单行实现代码可以省略大括号和return ------------------------
+        MathOperation multiplication = (v1, v2) -> v1 * v2 + 0f;
+        System.out.println(multiplication.operate(5, 3));
+    }
+}
+```
+
+需要注意的是:
+
+> Lambda表达式只能实现有且只有一个抽象方法的接口，Java称之为"函数式接口"
+
+如果接口中有多个方法, 则会报错:
+`Multiple non-overriding abstract methods found in interface com.imooc.lambda.MathOperation`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
