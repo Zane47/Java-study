@@ -146,7 +146,7 @@ public class LambdaSample {
 
 ---
 
-### 函数式接口Predicat
+### 函数式接口Predicate
 
 * Predicate是新增的函数式接口,位于java.util.function
 
@@ -453,15 +453,132 @@ T: 输入参数类型
 
 R: 返回数据类型
 
-Function: 一个参数且需要返回数据
+Function: 一个参数且需要返回数据. apply()方法
 
+---
 
+利用Function函数式接口生成定长的随机字符串 -> 经常用于数据的加密和解密
 
+```java
+package com.example.function;
 
+import java.util.Random;
+import java.util.function.Function;
 
+/**
+ * 利用Function函数式接口生成定长的随机字符串
+ */
+public class FunctionSample {
+    public static void main(String[] args) {
+        Function<Integer, String> randomStr = len -> {
+            String lib = "0123456789qwertyuiopasdfghjklzxcvbnm";
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < len; i++) {
+                Random random = new Random();
+                int r = random.nextInt(lib.length());
+                sb.append(lib.charAt(r));
+            }
+            return sb.toString();
+        };
+        System.out.println(randomStr.apply(15));
+    }
+}
+```
 
+Function:
 
+```java
+package java.util.function;
 
+import java.util.Objects;
+
+/**
+ * Represents a function that accepts one argument and produces a result.
+ *
+ * <p>This is a <a href="package-summary.html">functional interface</a>
+ * whose functional method is {@link #apply(Object)}.
+ *
+ * @param <T> the type of the input to the function
+ * @param <R> the type of the result of the function
+ *
+ * @since 1.8
+ */
+@FunctionalInterface
+public interface Function<T, R> {
+
+    /**
+     * Applies this function to the given argument.
+     *
+     * @param t the function argument
+     * @return the function result
+     */
+    R apply(T t);
+
+    /**
+     * Returns a composed function that first applies the {@code before}
+     * function to its input, and then applies this function to the result.
+     * If evaluation of either function throws an exception, it is relayed to
+     * the caller of the composed function.
+     *
+     * @param <V> the type of input to the {@code before} function, and to the
+     *           composed function
+     * @param before the function to apply before this function is applied
+     * @return a composed function that first applies the {@code before}
+     * function and then applies this function
+     * @throws NullPointerException if before is null
+     *
+     * @see #andThen(Function)
+     */
+    default <V> Function<V, R> compose(Function<? super V, ? extends T> before) {
+        Objects.requireNonNull(before);
+        return (V v) -> apply(before.apply(v));
+    }
+
+    /**
+     * Returns a composed function that first applies this function to
+     * its input, and then applies the {@code after} function to the result.
+     * If evaluation of either function throws an exception, it is relayed to
+     * the caller of the composed function.
+     *
+     * @param <V> the type of output of the {@code after} function, and of the
+     *           composed function
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then
+     * applies the {@code after} function
+     * @throws NullPointerException if after is null
+     *
+     * @see #compose(Function)
+     */
+    default <V> Function<T, V> andThen(Function<? super R, ? extends V> after) {
+        Objects.requireNonNull(after);
+        return (T t) -> after.apply(apply(t));
+    }
+
+    /**
+     * Returns a function that always returns its input argument.
+     *
+     * @param <T> the type of the input and output objects to the function
+     * @return a function that always returns its input argument
+     */
+    static <T> Function<T, T> identity() {
+        return t -> t;
+    }
+}
+```
+
+### 函数式接口总结
+
+之前的Predicate, Consumer, Function等, 最多的也就只有一个参数, 如果需要多参数?
+
+Java中默认只提供一个参数, 如果要多参数, 需要自己编写函数式接口(有且只有一个抽象方法的接口)
+
+---
+
+@FunctionInterface
+
+用来说明该接口为函数式接口, 写与不写对程序本质无影响. 
+
+作用: 
 
 
 
