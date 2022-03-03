@@ -116,6 +116,8 @@ public class LambdaSample {
 
 ## 函数式编程
 
+[Package java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html)
+
 ### 函数式编程和函数式接口
 
 #### 函数式编程
@@ -346,21 +348,112 @@ public class PredicateSample {
 
 不是具体的数值, 而是将已有的代码作为可重入资源放到程序中. 灵活
 
-
-
 ### 函数式接口Consumer
 
+Represents an operation that accepts a single input argument and returns no result.
+
+在日常处理中只需要有一个参数输入, 不需要返回任何结果时使用.
+
+| 接口            | 用途                                       |
+| --------------- | ------------------------------------------ |
+| ``Consumer<T>`` | 对应有一个输入参数无输出的功能代码         |
+| `Function<T,R>` | 对应有一个输入参数且需要返回数据的功能代码 |
+| `Predicate<T>`  | 用于条件判断，固定返回布尔值               |
+
+Function<T,R>: T: 参数类型, R:返回类型
+
+---
+
+Consumer的使用示例:
+
+text输出到多个平台可能, console, 文件, 网络传输等
+
+```java
+package com.example.consumer;
+
+import java.util.function.Consumer;
+
+/**
+ * consumer接口使用
+ */
+public class ConsumerSample {
+
+    public static void main(String[] args) {
+        // console输出
+        output(s -> System.out.println("console: " + s));
+
+        // 网站输出(示意)
+        output(s -> {
+            // to web
+            System.out.println("xxx website: " + s);
+        });
+    }
+
+    private static void output(Consumer<String> consumer) {
+        String text = "text";
+        consumer.accept(text);
+    }
+}
+```
+
+查看consumer源码可以看到, consumer就是函数式接口, 不需要return, 直接写函数实现即可.
+
+Consumer: Represents an operation that accepts a single input argument and returns no
+
+result.
+
+```java
+/**
+ * Represents an operation that accepts a single input argument and returns no
+ * result. Unlike most other functional interfaces, {@code Consumer} is expected
+ * to operate via side-effects.
+ *
+ * <p>This is a <a href="package-summary.html">functional interface</a>
+ * whose functional method is {@link #accept(Object)}.
+ *
+ * @param <T> the type of the input to the operation
+ *
+ * @since 1.8
+ */
+@FunctionalInterface
+public interface Consumer<T> {
+
+    /**
+     * Performs this operation on the given argument.
+     *
+     * @param t the input argument
+     */
+    void accept(T t);
+
+    /**
+     * Returns a composed {@code Consumer} that performs, in sequence, this
+     * operation followed by the {@code after} operation. If performing either
+     * operation throws an exception, it is relayed to the caller of the
+     * composed operation.  If performing this operation throws an exception,
+     * the {@code after} operation will not be performed.
+     *
+     * @param after the operation to perform after this operation
+     * @return a composed {@code Consumer} that performs in sequence this
+     * operation followed by the {@code after} operation
+     * @throws NullPointerException if {@code after} is null
+     */
+    default Consumer<T> andThen(Consumer<? super T> after) {
+        Objects.requireNonNull(after);
+        return (T t) -> { accept(t); after.accept(t); };
+    }
 
 
-
-
-
+```
 
 ### 函数式接口Function
 
+Function<T,R>: Represents a function that accepts one argument and produces a result.
 
+T: 输入参数类型
 
+R: 返回数据类型
 
+Function: 一个参数且需要返回数据
 
 
 
